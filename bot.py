@@ -1,74 +1,73 @@
 import streamlit as st
 import google.generativeai as genai
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-def ai(txt):
-    
-    def ai(txt):
-        """Generates a professional response from the AI model using a structured prompt."""
-    model = genai.GenerativeModel('gemini-1.5-flash')
 
-    # This structured prompt clearly defines the AI's role and the user's query.
-    # This is the key to getting high-quality, professional responses.
-    prompt = f"""
-**System Instruction:**
+# Configure the API key securely using Streamlit Secrets
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+
+# --- This is the new, powerful system prompt that acts as the AI's "brain" ---
+SYSTEM_PROMPT = """
 You are "Coditiot," a professional AI assistant created by Logesh S. 
 You are an expert in electronics and Machine Learning.
 Your tone should be helpful, knowledgeable, and concise. 
 Provide clear, well-structured answers to assist the user.
 
-**User's Query:**
-{txt}
+Your capabilities include:
+1.  **Answering Questions:** Provide clear, accurate, and well-structured answers on technology topics.
+2.  **Code Analysis & Debugging:** When a user provides code with an error, you must:
+    - Identify the error in the user's code.
+    - Explain the cause of the error in simple terms.
+    - Provide the complete, corrected code block.
+    - Explain what you changed and why.
+3.  **General Conversation:** Maintain a helpful, knowledgeable, and professional tone at all times.
 """
 
-    # Add generation_config for more controlled, professional output
+def get_ai_response(history):
+    """Generates a response from the AI model, including conversation history."""
+    model = genai.GenerativeModel('gemini-1.5-flash')
+
     generation_config = {
-        "temperature": 0.7,  # Lower temperature for more predictable responses
-        "top_p": 1,
-        "top_k": 1,
+        "temperature": 0.7,
+        "top_p": 0.95,
+        "top_k": 40,
         "max_output_tokens": 2048,
     }
 
-    # Pass the structured prompt and configuration to the model
-    response = model.generate_content(prompt, generation_config=generation_config)
+    # Pass the entire conversation history to the model
+    response = model.generate_content(history, generation_config=generation_config)
     return response.text
 
+# --- Streamlit App UI ---
 
-st.title("QuantWeb AI assistant")
+st.title("Gamkers AI Assistant")
 
-command=st.chat_input("HOW CAN I HELP YOU?")
+# Initialize chat history in session state
+if "messages" not in st.session_state:
+    # Start with the system prompt to set the AI's personality
+    st.session_state.messages = [
+        {"role": "user", "parts": [SYSTEM_PROMPT]},
+        {"role": "model", "parts": ["Understood. I am Gamkers, your expert AI assistant. How can I help you today?"]}
+    ]
 
-if "message" not in st.session_state:
-    st.session_state.message=[]
+# Display past messages, skipping the initial system prompt
+for message in st.session_state.messages[2:]:
+    with st.chat_message(message["role"]):
+        st.markdown(message["parts"][0]) # Use markdown to render formatted text
 
-for chat in st.session_state.message:
-    with st.chat_message(chat["role"]):
-        st.write(chat["message"])
+# Get user input
+user_prompt = st.chat_input("Ask about coding, tech, or anything else...")
 
-if command:
+if user_prompt:
+    # Add user's message to history and display it
+    st.session_state.messages.append({"role": "user", "parts": [user_prompt]})
     with st.chat_message("user"):
+        st.markdown(user_prompt)
 
-        st.write(command)
-        st.session_state.message.append({"role":"user","message":command})
-
-    if "hello" in command:
-        with st.chat_message("bot"):
-            st.write("Hi How can i help you.")
-            st.session_state.message.append({"role":"bot","message":"Hi How can i help you."})
-    elif "who" in command:
-        with st.chat_message("bot"):
-            st.write("Im Codidioter's ai assistant")
-            st.session_state.message.append({"role":"bot","message":"Im Codidioter's ai assistant"})
-    elif "hi" in command:
-        with st.chat_message("bot"):
-            st.write("hello good to see you")
-            st.session_state.message.append({"role":"bot","message":"hello good to see you"})
+    # Generate and display bot's response
+    with st.chat_message("model"):
+        with st.spinner("Gamkers is thinking..."):
+            # Get the AI response using the full conversation history
+            response_data = get_ai_response(st.session_state.messages)
+            st.markdown(response_data)
     
-    else:
-        with st.chat_message("bot"):
-            data=ai(command)
-            st.write(data)
-            st.session_state.message.append({"role":"bot","message":data})
-
-
-
-print(st.session_state.message)
+    # Add bot's response to history
+    st.session_state.messages.append({"role": "model", "parts": [response_data]})
