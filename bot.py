@@ -56,9 +56,6 @@ for message in st.session_state.messages[2:]:
 # Get user input
 user_prompt = st.chat_input("Ask about coding, tech, or anything else...")
 
-# Get user input
-user_prompt = st.chat_input("Ask about coding, tech, or anything else...")
-
 if user_prompt:
     # Add user's message to history and display it
     st.session_state.messages.append({"role": "user", "parts": [user_prompt]})
@@ -67,8 +64,6 @@ if user_prompt:
 
     # Generate and display bot's response
     with st.chat_message("model"):
-        # --- THIS IS THE SPINNER ---
-        # You can change the text to whatever you want.
         with st.spinner("Codidiot is thinking..."):
             # Get the AI response using the full conversation history
             response_data = get_ai_response(st.session_state.messages)
@@ -76,5 +71,3 @@ if user_prompt:
     
     # Add bot's response to history
     st.session_state.messages.append({"role": "model", "parts": [response_data]})
-
-
