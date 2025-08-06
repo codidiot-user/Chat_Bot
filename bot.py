@@ -38,14 +38,14 @@ def get_ai_response(history):
 
 # --- Streamlit App UI ---
 
-st.title("Gamkers AI Assistant")
+st.title("Codidiot AI Assistant")
 
 # Initialize chat history in session state
 if "messages" not in st.session_state:
     # Start with the system prompt to set the AI's personality
     st.session_state.messages = [
         {"role": "user", "parts": [SYSTEM_PROMPT]},
-        {"role": "model", "parts": ["Understood. I am Gamkers, your expert AI assistant. How can I help you today?"]}
+        {"role": "model", "parts": ["Understood. I am Codidiot, your expert AI assistant. How can I help you today?"]}
     ]
 
 # Display past messages, skipping the initial system prompt
@@ -64,10 +64,11 @@ if user_prompt:
 
     # Generate and display bot's response
     with st.chat_message("model"):
-        with st.spinner("Gamkers is thinking..."):
+        with st.spinner("Codidiot is thinking..."):
             # Get the AI response using the full conversation history
             response_data = get_ai_response(st.session_state.messages)
             st.markdown(response_data)
     
     # Add bot's response to history
     st.session_state.messages.append({"role": "model", "parts": [response_data]})
+
