@@ -38,7 +38,7 @@ def get_ai_response(history):
 
 # --- Streamlit App UI ---
 
-st.title("Codidiot AI Assistant")
+st.title("Codidiot AI Master")
 st.markdown("Developed by Logesh")
 st.markdown("---")
 
@@ -73,6 +73,7 @@ if user_prompt:
     
     # Add bot's response to history
     st.session_state.messages.append({"role": "model", "parts": [response_data]})
+
 
 
 
